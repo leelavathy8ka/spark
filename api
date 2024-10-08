@@ -1,0 +1,83 @@
+API Design Document: SparkFlow DAG Triggering Service
+Overview
+The SparkFlow DAG Triggering API is designed to trigger workflows in SparkFlow via a RESTful interface. The service leverages a backend API to trigger Data Access Services (DAS) and workflows in SparkFlow, making use of the Spring Boot framework and RestTemplate for HTTP communication.
+This document provides details about the endpoints, request/response formats, and security requirements for interacting with the API.
+
+Base URL
+perl
+Copy code
+http://<your-server-url>/api/sparkflows
+
+Endpoints
+1. Trigger DAG
+* Method: POST
+* Endpoint: /trigger
+* Description: Triggers a DAG (Directed Acyclic Graph) workflow in SparkFlow by making a POST request to the SparkFlow backend.
+* Authentication: Bearer token in the headers (JWT or other token-based authentication).
+* Request Headers:
+    * Authorization: Bearer <token> (required)
+    * Content-Type: application/json
+Request Example
+Request URL:
+perl
+Copy code
+POST http://<your-server-url>/api/sparkflows/trigger
+Request Body:
+Parameter	Type	Required	Description
+pipelineName	String	Yes	The name of the pipeline to trigger
+projectId	String	Yes	ID of the project containing the DAG
+executionDate	String	No	Optional execution date for DAG, in ISO format yyyy-MM-ddTHH:mm:ssZ
+batchId	String	No	Optional batch ID for workflow processing
+json
+Copy code
+{
+  "pipelineName": "data_pipeline_v1",
+  "projectId": "1234",
+  "executionDate": "2024-10-08T00:00:00Z",
+  "batchId": "batch_5678"
+}
+Response Example (Success):
+json
+Copy code
+{
+  "message": "DAG triggered successfully.",
+  "workflowExecutionId": "wf_0001",
+  "resultUrl": "https://<sparkflows-url>/view-workflow-result/wf_0001"
+}
+Response Example (Error):
+json
+Copy code
+{
+  "message": "Failed to trigger DAG. Invalid pipeline name."
+}
+Endpoint Details
+HTTP Request
+* Request Method: POST
+* Request URL: /trigger
+* Headers:
+    * Authorization: Bearer <token> (Required for authentication)
+    * Content-Type: application/json
+Request Body Parameters
+* pipelineName: The name of the DAG pipeline to trigger. (Required)
+* projectId: The ID of the project containing the DAG. (Required)
+* executionDate: An optional parameter to specify the execution date of the DAG in ISO-8601 format (yyyy-MM-ddTHH:mm:ssZ). (Optional)
+* batchId: The batch identifier to track the workflow instance in SparkFlow. (Optional)
+
+Response
+Success Response (200 OK)
+Upon successfully triggering the DAG workflow in SparkFlow, the service will return a JSON response with the following structure:
+* Response Body:
+Field	Type	Description
+message	String	A success message indicating the DAG was triggered.
+workflowExecutionId	String	The unique identifier of the triggered workflow.
+resultUrl	String	URL to view the execution result in SparkFlow UI.
+Error Response
+In case of failure, the response will contain an error message and the HTTP status code.
+* Response Body (Error):
+Field	Type	Description
+message	String	A message explaining the failure.
+	•	Status Codes:
+    * 200 OK: DAG triggered successfully.
+    * 400 Bad Request: Missing or invalid parameters in the request.
+    * 401 Unauthorized: Authentication token is missing or invalid.
+    * 500 Internal Server Error: Server encountered an unexpected condition.
