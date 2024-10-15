@@ -25,7 +25,9 @@
             return null;
         }
     }
-
+dependencies {
+    implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.12.572'
+}
 
     <dependency>
     <groupId>com.amazonaws</groupId>
