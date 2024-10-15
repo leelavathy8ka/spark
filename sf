@@ -1,0 +1,34 @@
+    public static String retrieveSecret(String secretId, String region) {
+        // Create an AWS Secrets Manager client
+        AWSSecretsManager secretsManager = AWSSecretsManagerClientBuilder.standard()
+                .withRegion(region)
+                .build();
+
+        // Create a request to get the secret value
+        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest()
+                .withSecretId(secretId);
+
+        try {
+            // Get the secret value
+            GetSecretValueResult getSecretValueResult = secretsManager.getSecretValue(getSecretValueRequest);
+            String secretString = getSecretValueResult.getSecretString();
+
+            // Parse the secret string as JSON
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode secretJson = objectMapper.readTree(secretString);
+
+            // Retrieve the TOKEN from the JSON
+            return secretJson.get("TOKEN").asText();
+        } catch (Exception e) {
+            // Handle any exceptions (e.g., secret not found, access denied)
+            System.err.println("Failed to retrieve secret: " + e.getMessage());
+            return null;
+        }
+    }
+
+
+    <dependency>
+    <groupId>com.amazonaws</groupId>
+    <artifactId>aws-java-sdk-secretsmanager</artifactId>
+    <version>1.12.572</version>
+</dependency>
